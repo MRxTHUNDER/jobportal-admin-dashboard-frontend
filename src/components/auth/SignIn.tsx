@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { Building2 } from 'lucide-react';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [adminPassword,setAdminPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
@@ -17,14 +18,11 @@ const SignIn: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
-      if (success) {
-        navigate('/dashboard');
-      } else {
-        setError('Invalid email or password');
-      }
+      await login(email, password,adminPassword);
+      navigate('/dashboard');
     } catch (err) {
       setError('An error occurred during sign in');
+      console.log(err)
     } finally {
       setIsLoading(false);
     }
@@ -91,6 +89,24 @@ const SignIn: React.FC = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="adminPassword" className="block text-sm font-medium text-gray-700">
+               Admin Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="adminPassword"
+                  name="adminPassword"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>

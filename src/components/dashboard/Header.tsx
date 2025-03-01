@@ -1,10 +1,10 @@
 import React from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { Menu, Bell, LogOut } from 'lucide-react';
+import { useAuth } from '../../context/useAuth';
+import { Menu, Bell, LogOut } from 'lucide-react'
 import { useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [showProfileMenu, setShowProfileMenu] = React.useState(false);
 
@@ -50,7 +50,7 @@ const Header: React.FC = () => {
                 >
                   <span className="sr-only">Open user menu</span>
                   <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white">
-                    {user?.name.charAt(0)}
+                    Ad
                   </div>
                 </button>
               </div>
@@ -63,8 +63,8 @@ const Header: React.FC = () => {
                   aria-labelledby="user-menu"
                 >
                   <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                    <p className="font-medium">{user?.name}</p>
-                    <p className="text-gray-500">{user?.email}</p>
+                    <p className="font-medium">Admin</p>
+                    <p className="text-gray-500">Admin Email</p>
                   </div>
                   <button
                     onClick={handleLogout}
