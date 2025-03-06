@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Building2 } from 'lucide-react';
 import { useAuth } from '../../context/useAuth';
@@ -11,8 +11,14 @@ const SignUp: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signup } = useAuth();
+  const { signup,isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+    useEffect(() => {
+      if (isAuthenticated) {
+        navigate('/dashboard/add-job');
+      }
+    }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +41,10 @@ const SignUp: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
