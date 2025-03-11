@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+export const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 export interface JobResponse {
   message: string;
@@ -16,7 +17,7 @@ export interface JobResponse {
 export const fetchJobs = async (
   page = 1,
   limit = 10,
-  searchTerm = "",
+  searchTerm = ""
 ): Promise<JobResponse> => {
   try {
     const response = await axios.get(`${API_URL}/jobs`, {

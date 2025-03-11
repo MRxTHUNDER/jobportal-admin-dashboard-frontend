@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { fetchJobById } from "../../hooks/usefetchjobs";
+import { fetchJobApplicants } from "../../hooks/useFetchApplicants";
 
 interface Applicant {
   _id: string;
@@ -50,6 +51,7 @@ const ApplicationView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [applicantsLoading, setApplicantsLoading] = useState(false);
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -65,44 +67,8 @@ const ApplicationView: React.FC = () => {
 
         if (response.data) {
           setJob(response.data);
-
-          // If the API returns applicants with the job, store them
-          // For now, use the mock applicants since your API might not include them yet
-          setApplicants([
-            {
-              _id: "1",
-              name: "John Smith",
-              email: "john.smith@example.com",
-              phone: "(555) 123-4567",
-              appliedAt: new Date(2025, 1, 1).toISOString(),
-              resumeUrl: "https://example.com/resume/john-smith",
-              coverLetter:
-                "I am excited to apply for this position as I believe my skills and experience make me a perfect fit for the role.",
-              status: "reviewed",
-            },
-            {
-              _id: "2",
-              name: "Emily Johnson",
-              email: "emily.johnson@example.com",
-              phone: "(555) 987-6543",
-              appliedAt: new Date(2025, 1, 3).toISOString(),
-              resumeUrl: "https://example.com/resume/emily-johnson",
-              coverLetter:
-                "With my background in similar projects and passion for innovation, I am confident I can contribute significantly to your team.",
-              status: "interviewed",
-            },
-            {
-              _id: "3",
-              name: "Michael Brown",
-              email: "michael.brown@example.com",
-              phone: "(555) 456-7890",
-              appliedAt: new Date(2025, 1, 5).toISOString(),
-              resumeUrl: "https://example.com/resume/michael-brown",
-              coverLetter:
-                "I have been following your company for years and would love the opportunity to bring my expertise to your team.",
-              status: "pending",
-            },
-          ]);
+          // Fetch applicants after job data is loaded
+          fetchApplicantsData(id);
         } else {
           setError("Job not found");
         }
@@ -116,6 +82,44 @@ const ApplicationView: React.FC = () => {
 
     fetchJob();
   }, [id]);
+
+  const fetchApplicantsData = async (jobId: string) => {
+    try {
+      setApplicantsLoading(true);
+      const applicantsResponse = await fetchJobApplicants(jobId);
+
+      if (applicantsResponse.success && applicantsResponse.applications) {
+        // Transform applicant data to match our interface
+        const formattedApplicants: Applicant[] =
+          applicantsResponse.applications.map((app) => ({
+            _id: app._id,
+            name: app.userId.name,
+            email: app.userId.email,
+            phone: app.userId.phone || "",
+            appliedAt: app.appliedAt,
+            resumeUrl: app.resumeId?.url || "",
+            coverLetter: app.coverLetter || "",
+            status: app.status as
+              | "pending"
+              | "reviewed"
+              | "interviewed"
+              | "rejected"
+              | "hired",
+          }));
+
+        setApplicants(formattedApplicants);
+      } else {
+        setApplicants([]);
+      }
+    } catch (err) {
+      console.error("Error fetching applicants:", err);
+      // Don't set error state here to avoid replacing the main content with an error message
+      // Just log the error and show an empty applicants list
+      setApplicants([]);
+    } finally {
+      setApplicantsLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -278,96 +282,108 @@ const ApplicationView: React.FC = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Applicant
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Applied On
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Status
-              </th>
-              <th scope="col" className="relative px-6 py-3">
-                <span className="sr-only">Actions</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {applicants.length > 0 ? (
-              applicants.map((applicant) => (
-                <tr key={applicant._id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {applicant.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {applicant.email}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {applicant.phone}
+        {applicantsLoading ? (
+          <div className="flex justify-center items-center py-10">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <span className="ml-2 text-gray-500">Loading applicants...</span>
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Applicant
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Applied On
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Status
+                </th>
+                <th scope="col" className="relative px-6 py-3">
+                  <span className="sr-only">Actions</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {applicants.length > 0 ? (
+                applicants.map((applicant) => (
+                  <tr key={applicant._id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {applicant.name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {applicant.email}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {applicant.phone}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {format(new Date(applicant.appliedAt), "MMM d, yyyy")}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        applicant.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : applicant.status === "reviewed"
-                          ? "bg-blue-100 text-blue-800"
-                          : applicant.status === "interviewed"
-                          ? "bg-purple-100 text-purple-800"
-                          : applicant.status === "rejected"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-green-100 text-green-800"
-                      }`}
-                    >
-                      {applicant.status.charAt(0).toUpperCase() +
-                        applicant.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-blue-600 hover:text-blue-900 mr-4">
-                      View Resume
-                    </button>
-                    <button className="text-blue-600 hover:text-blue-900">
-                      Update Status
-                    </button>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {format(new Date(applicant.appliedAt), "MMM d, yyyy")}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          applicant.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : applicant.status === "reviewed"
+                            ? "bg-blue-100 text-blue-800"
+                            : applicant.status === "interviewed"
+                            ? "bg-purple-100 text-purple-800"
+                            : applicant.status === "rejected"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {applicant.status.charAt(0).toUpperCase() +
+                          applicant.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <a
+                        href={applicant.resumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                      >
+                        View Resume
+                      </a>
+                      <button className="text-blue-600 hover:text-blue-900">
+                        Update Status
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
+                  >
+                    No applicants found for this job.
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
-                >
-                  No applicants found for this job.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
