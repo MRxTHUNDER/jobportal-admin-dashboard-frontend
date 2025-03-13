@@ -21,7 +21,13 @@ interface Applicant {
   appliedAt: string;
   resumeUrl: string;
   coverLetter: string;
-  status: "pending" | "reviewed" | "interviewed" | "rejected" | "hired";
+  status:
+    | "pending"
+    | "reviewed"
+    | "interviewed"
+    | "rejected"
+    | "hired"
+    | "applied";
 }
 
 interface Job {
@@ -88,24 +94,20 @@ const ApplicationView: React.FC = () => {
       setApplicantsLoading(true);
       const applicantsResponse = await fetchJobApplicants(jobId);
 
-      if (applicantsResponse.success && applicantsResponse.applications) {
+      if (applicantsResponse.data) {
         // Transform applicant data to match our interface
-        const formattedApplicants: Applicant[] =
-          applicantsResponse.applications.map((app) => ({
-            _id: app._id,
-            name: app.userId.name,
-            email: app.userId.email,
-            phone: app.userId.phone || "",
-            appliedAt: app.appliedAt,
-            resumeUrl: app.resumeId?.url || "",
-            coverLetter: app.coverLetter || "",
-            status: app.status as
-              | "pending"
-              | "reviewed"
-              | "interviewed"
-              | "rejected"
-              | "hired",
-          }));
+        const formattedApplicants: Applicant[] = applicantsResponse.data.map(
+          (app) => ({
+            _id: app.applicationId,
+            name: app.user?.name || "Unknown",
+            email: app.user?.email || "",
+            phone: app.user?.phoneNumber || "",
+            appliedAt: app.appliedDate,
+            resumeUrl: app.hasResume ? `/api/resume/${app.user?.id}` : "", // You'll need to adjust this URL
+            coverLetter: "", // Your JobDataModel doesn't have cover letter field
+            status: app.applicationStatus as any,
+          })
+        );
 
         setApplicants(formattedApplicants);
       } else {
@@ -113,8 +115,6 @@ const ApplicationView: React.FC = () => {
       }
     } catch (err) {
       console.error("Error fetching applicants:", err);
-      // Don't set error state here to avoid replacing the main content with an error message
-      // Just log the error and show an empty applicants list
       setApplicants([]);
     } finally {
       setApplicantsLoading(false);

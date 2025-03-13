@@ -48,10 +48,29 @@ const Applications: React.FC = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setPage(1); // Reset to first page on new search
+      fetchJobsData(); // Call fetchJobs with updated search term
     }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [searchTerm]);
+
+  const fetchJobsData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchJobs(page, 10, searchTerm);
+      setJobs(response.data);
+      setTotalPages(response.pagination.pages);
+      setLoading(false);
+    } catch {
+      setError("Failed to fetch jobs. Please try again later.");
+      setLoading(false);
+    }
+  };
+
+  // Also update the page effect to use the fetch function
+  useEffect(() => {
+    fetchJobsData();
+  }, [page]); // Only depend on page, not searchTerm
 
   const handleViewJob = (id: string) => {
     navigate(`/dashboard/applications/${id}`);

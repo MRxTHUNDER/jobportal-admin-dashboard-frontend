@@ -4,38 +4,48 @@ import { API_URL } from "./usefetchjobs";
 // Get the token from local storage
 const getToken = () => localStorage.getItem("authToken");
 
+// This interface should match what your backend returns in jobController.ts
 interface ApplicantResponse {
-  success: boolean;
-  applications: Array<{
-    _id: string;
-    jobId: string;
-    userId: {
-      _id: string;
+  message: string;
+  data: Array<{
+    applicationId: string;
+    applicationStatus: string;
+    matchPercentage: number;
+    appliedDate: string;
+    lastUpdated: string;
+    notes?: string;
+    interviewDate?: string;
+    user: {
+      id: string;
       name: string;
       email: string;
-      phone: string;
-    };
-    resumeId: {
-      _id: string;
-      url: string;
-    };
-    coverLetter: string;
-    status: string;
-    appliedAt: string;
+      phoneNumber: string;
+    } | null;
+    hasResume: boolean;
   }>;
-  count: number;
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
 }
 
-export const fetchJobApplicants = async (jobId: string) => {
+export const fetchJobApplicants = async (
+  jobId: string,
+  page: number = 1,
+  limit: number = 10
+) => {
   try {
     const token = getToken();
 
     const response = await axios.get<ApplicantResponse>(
-      `${API_URL}/jobs/${jobId}/applications`,
+      `${API_URL}/jobs/${jobId}/applicants`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        params: { page, limit },
       }
     );
 
