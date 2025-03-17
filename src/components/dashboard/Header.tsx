@@ -14,14 +14,14 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow">
+    <header className="bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
+            <div className="shrink-0 flex items-center">
               <button
                 type="button"
-                className="md:hidden px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                className="md:hidden px-4 border-r border-gray-200 text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-blue-500"
               >
                 <span className="sr-only">Open sidebar</span>
                 <Menu className="h-6 w-6" aria-hidden="true" />
@@ -32,7 +32,7 @@ const Header: React.FC = () => {
           <div className="flex items-center">
             <button
               type="button"
-              className="p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               <span className="sr-only">View notifications</span>
               <Bell className="h-6 w-6" aria-hidden="true" />
@@ -42,7 +42,7 @@ const Header: React.FC = () => {
               <div>
                 <button
                   type="button"
-                  className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   id="user-menu"
                   aria-expanded="false"
                   aria-haspopup="true"
@@ -57,7 +57,7 @@ const Header: React.FC = () => {
 
               {showProfileMenu && (
                 <div
-                  className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-hidden"
                   role="menu"
                   aria-orientation="vertical"
                   aria-labelledby="user-menu"
