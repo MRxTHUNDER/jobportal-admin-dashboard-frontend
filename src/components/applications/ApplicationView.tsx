@@ -12,6 +12,28 @@ import {
 import { format } from "date-fns";
 import { fetchJobById } from "../../hooks/usefetchjobs";
 import { fetchJobApplicants } from "../../hooks/useFetchApplicants";
+import { updateApplicationStatus } from "../../hooks/useUpdateApplicationStatus";
+
+// Import shadcn components
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Define status options
+const statusOptions = [
+  { value: "pending", label: "Pending" },
+  { value: "reviewed", label: "Reviewed" },
+  { value: "rejected", label: "Rejected" },
+  { value: "shortlisted", label: "Shortlisted" },
+  { value: "hired", label: "Hired" },
+  { value: "Applied", label: "Applied" },
+];
 
 interface Applicant {
   _id: string;
@@ -26,8 +48,10 @@ interface Applicant {
     | "reviewed"
     | "interviewed"
     | "rejected"
+    | "shortlisted"
     | "hired"
     | "applied";
+  matchPercentage: number; // Added matchPercentage field
 }
 
 interface Job {
@@ -58,6 +82,7 @@ const ApplicationView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [applicantsLoading, setApplicantsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchJob = async () => {
@@ -106,6 +131,7 @@ const ApplicationView: React.FC = () => {
             resumeUrl: app.hasResume ? `/api/resume/${app.user?.id}` : "", // You'll need to adjust this URL
             coverLetter: "", // Your JobDataModel doesn't have cover letter field
             status: app.applicationStatus as any,
+            matchPercentage: app.matchPercentage || 0, // Add match percentage
           })
         );
 
@@ -121,6 +147,28 @@ const ApplicationView: React.FC = () => {
     }
   };
 
+  // Add a function to handle status updates
+  const handleStatusChange = async (
+    applicationId: string,
+    newStatus: string
+  ) => {
+    try {
+      setIsUpdating((prev) => ({ ...prev, [applicationId]: true }));
+      await updateApplicationStatus(applicationId, newStatus);
+
+      // Update applicant status in the local state
+      setApplicants((prevApplicants) =>
+        prevApplicants.map((app) =>
+          app._id === applicationId ? { ...app, status: newStatus as any } : app
+        )
+      );
+    } catch (error) {
+      console.error("Error updating status:", error);
+    } finally {
+      setIsUpdating((prev) => ({ ...prev, [applicationId]: false }));
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -131,7 +179,7 @@ const ApplicationView: React.FC = () => {
 
   if (error || !job) {
     return (
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div className="bg-white shadow-sm overflow-hidden sm:rounded-lg">
         <div className="px-4 py-5 sm:px-6">
           <div className="flex items-center">
             <button
@@ -156,7 +204,7 @@ const ApplicationView: React.FC = () => {
   }
 
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div className="bg-white shadow-sm overflow-hidden sm:rounded-lg">
       <div className="px-4 py-5 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -309,6 +357,12 @@ const ApplicationView: React.FC = () => {
                 >
                   Status
                 </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  Match %
+                </th>
                 <th scope="col" className="relative px-6 py-3">
                   <span className="sr-only">Actions</span>
                 </th>
@@ -356,25 +410,53 @@ const ApplicationView: React.FC = () => {
                           applicant.status.slice(1)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <a
-                        href={applicant.resumeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                      >
-                        View Resume
-                      </a>
-                      <button className="text-blue-600 hover:text-blue-900">
-                        Update Status
-                      </button>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {applicant.matchPercentage}%
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center justify-end">
+                        <a
+                          href={applicant.resumeUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-899 mr-4"
+                        >
+                          View Resume
+                        </a>
+                        <Select
+                          disabled={isUpdating[applicant._id]}
+                          defaultValue={applicant.status}
+                          onValueChange={(value) =>
+                            handleStatusChange(applicant._id, value)
+                          }
+                        >
+                          <SelectTrigger className="w-[140px]">
+                            <SelectValue placeholder="Update Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Status</SelectLabel>
+                              {statusOptions.map((option) => (
+                                <SelectItem
+                                  key={option.value}
+                                  value={option.value}
+                                >
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
-                    colSpan={4}
+                    colSpan={5}
                     className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"
                   >
                     No applicants found for this job.

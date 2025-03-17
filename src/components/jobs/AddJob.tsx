@@ -143,7 +143,7 @@ const AddJob: React.FC = () => {
 
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
-      <div className="px-6 py-8 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div className="px-6 py-8 bg-linear-to-r from-blue-50 to-indigo-50">
         <h2 className="text-2xl font-bold text-gray-800">
           Add New Job Opportunity
         </h2>
@@ -153,7 +153,7 @@ const AddJob: React.FC = () => {
       </div>
 
       {successMessage && (
-        <div className="mx-6 my-4 bg-green-50 border-l-4 border-green-400 p-4 rounded-md shadow-sm">
+        <div className="mx-6 my-4 bg-green-50 border-l-4 border-green-400 p-4 rounded-md shadow-xs">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <Check className="h-5 w-5 text-green-500" />
@@ -173,7 +173,7 @@ const AddJob: React.FC = () => {
       )}
       
       {errorMessage && (
-        <div className="mx-6 my-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-md shadow-sm">
+        <div className="mx-6 my-4 bg-red-50 border-l-4 border-red-400 p-4 rounded-md shadow-xs">
           <div className="flex items-center">
             <div className="ml-3">
               <p className="text-sm font-medium text-red-800">{errorMessage}</p>
@@ -190,7 +190,7 @@ const AddJob: React.FC = () => {
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
                 Job Title*
               </label>
-              <div className="relative rounded-md shadow-sm">
+              <div className="relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Briefcase className="h-5 w-5 text-gray-400" />
                 </div>
@@ -214,7 +214,7 @@ const AddJob: React.FC = () => {
               <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
                 Company*
               </label>
-              <div className="relative rounded-md shadow-sm">
+              <div className="relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Building2 className="h-5 w-5 text-gray-400" />
                 </div>
@@ -259,7 +259,7 @@ const AddJob: React.FC = () => {
               <label htmlFor="techstack" className="block text-sm font-medium text-gray-700 mb-2">
                 Tech Stack*
               </label>
-              <div className="relative rounded-md shadow-sm">
+              <div className="relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Server className="h-5 w-5 text-gray-400" />
                 </div>
@@ -366,7 +366,7 @@ const AddJob: React.FC = () => {
               <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
                 Location*
               </label>
-              <div className="relative rounded-md shadow-sm">
+              <div className="relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <MapPin className="h-5 w-5 text-gray-400" />
                 </div>
@@ -390,7 +390,7 @@ const AddJob: React.FC = () => {
               <label htmlFor="salary" className="block text-sm font-medium text-gray-700 mb-2">
                 Salary*
               </label>
-              <div className="relative rounded-md shadow-sm">
+              <div className="relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <DollarSign className="h-5 w-5 text-gray-400" />
                 </div>
@@ -414,7 +414,7 @@ const AddJob: React.FC = () => {
               <label htmlFor="jobType" className="block text-sm font-medium text-gray-700 mb-2">
                 Job Type*
               </label>
-              <div className="relative rounded-md shadow-sm">
+              <div className="relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Briefcase className="h-5 w-5 text-gray-400" />
                 </div>
@@ -442,7 +442,7 @@ const AddJob: React.FC = () => {
               <label htmlFor="expiresAt" className="block text-sm font-medium text-gray-700 mb-2">
                 Expires At*
               </label>
-              <div className="relative rounded-md shadow-sm">
+              <div className="relative rounded-md shadow-xs">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Clock className="h-5 w-5 text-gray-400" />
                 </div>
@@ -492,7 +492,7 @@ const AddJob: React.FC = () => {
               <button
                 type="button"
                 className="bg-white py-3 px-6 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 
-                  hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
+                  hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
                 onClick={() => {
                   setFormData({
                     title: '',
@@ -517,7 +517,7 @@ const AddJob: React.FC = () => {
                 type="submit"
                 disabled={isSubmitting}
                 className="ml-4 inline-flex justify-center py-3 px-8 border border-transparent shadow-sm text-sm font-medium 
-                  rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 
+                  rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 
                   focus:ring-blue-500 disabled:opacity-50 transition-all duration-200"
               >
                 {isSubmitting ? (

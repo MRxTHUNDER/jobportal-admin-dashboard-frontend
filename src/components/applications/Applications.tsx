@@ -77,7 +77,7 @@ const Applications: React.FC = () => {
   };
 
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div className="bg-white shadow-sm overflow-hidden sm:rounded-lg">
       <div className="px-4 py-5 sm:px-6">
         <h2 className="text-lg leading-6 font-medium text-gray-900">
           Job Applications
@@ -88,7 +88,7 @@ const Applications: React.FC = () => {
       </div>
 
       <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-        <div className="relative rounded-md shadow-sm max-w-lg">
+        <div className="relative rounded-md shadow-xs max-w-lg">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
           </div>
@@ -258,7 +258,7 @@ const Applications: React.FC = () => {
                 </div>
                 <div>
                   <nav
-                    className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                    className="relative z-0 inline-flex rounded-md shadow-xs -space-x-px"
                     aria-label="Pagination"
                   >
                     <button
