@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Briefcase,
@@ -13,8 +13,8 @@ import { format } from "date-fns";
 import { fetchJobById } from "../../hooks/usefetchjobs";
 import { fetchJobApplicants } from "../../hooks/useFetchApplicants";
 import { updateApplicationStatus } from "../../hooks/useUpdateApplicationStatus";
+import ApplicationViewFilter from "./ApplicationViewFilter";
 
-// Import shadcn components
 import {
   Select,
   SelectContent,
@@ -24,59 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// Define status options
-const statusOptions = [
-  { value: "pending", label: "Pending" },
-  { value: "reviewed", label: "Reviewed" },
-  { value: "rejected", label: "Rejected" },
-  { value: "shortlisted", label: "Shortlisted" },
-  { value: "hired", label: "Hired" },
-  { value: "Applied", label: "Applied" },
-];
-
-interface Applicant {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  appliedAt: string;
-  resumeUrl: string;
-  coverLetter: string;
-  status:
-    | "pending"
-    | "reviewed"
-    | "interviewed"
-    | "rejected"
-    | "shortlisted"
-    | "hired"
-    | "applied";
-  matchPercentage: number; // Added matchPercentage field
-}
-
-interface Job {
-  _id: string;
-  title: string;
-  company: string;
-  location?: string;
-  salary?: string;
-  jobType: string;
-  remote: boolean;
-  description: string;
-  techStack: string;
-  responsibilites: string; // Note: This matches the backend field name (with typo)
-  requirements: string;
-  about: string;
-  benefits: string;
-  applicationsCount?: number;
-  createdAt: string;
-  expiresAt?: string;
-  applicants?: Applicant[];
-}
+import { Applicant, Job, statusOptions } from "@/types/application";
 
 const ApplicationView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +37,13 @@ const ApplicationView: React.FC = () => {
   const [applicantsLoading, setApplicantsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
 
+  const statusFilter = searchParams.get("status") || "";
+  const matchSortFilter = searchParams.get("matchSort") || "";
+
   useEffect(() => {
+    // Add console logs to debug filters
+    console.log("Current filters:", { statusFilter, matchSortFilter });
+
     const fetchJob = async () => {
       if (!id) {
         setError("Job ID is missing");
@@ -112,12 +71,23 @@ const ApplicationView: React.FC = () => {
     };
 
     fetchJob();
-  }, [id]);
+  }, [id, statusFilter, matchSortFilter]);
 
   const fetchApplicantsData = async (jobId: string) => {
     try {
       setApplicantsLoading(true);
-      const applicantsResponse = await fetchJobApplicants(jobId);
+      console.log("Fetching with filters:", {
+        status: statusFilter,
+        matchSort: matchSortFilter,
+      });
+
+      // Include filter parameters in the API call
+      const applicantsResponse = await fetchJobApplicants(jobId, 1, 10, {
+        status: statusFilter,
+        matchSort: matchSortFilter,
+      });
+
+      console.log("API response:", applicantsResponse);
 
       if (applicantsResponse.data) {
         // Transform applicant data to match our interface
@@ -147,7 +117,6 @@ const ApplicationView: React.FC = () => {
     }
   };
 
-  // Add a function to handle status updates
   const handleStatusChange = async (
     applicationId: string,
     newStatus: string
@@ -156,7 +125,6 @@ const ApplicationView: React.FC = () => {
       setIsUpdating((prev) => ({ ...prev, [applicationId]: true }));
       await updateApplicationStatus(applicationId, newStatus);
 
-      // Update applicant status in the local state
       setApplicants((prevApplicants) =>
         prevApplicants.map((app) =>
           app._id === applicationId ? { ...app, status: newStatus as any } : app
@@ -167,6 +135,20 @@ const ApplicationView: React.FC = () => {
     } finally {
       setIsUpdating((prev) => ({ ...prev, [applicationId]: false }));
     }
+  };
+
+  // Handle filter application
+  const handleApplyFilter = (filters: {
+    status: string;
+    matchSort: string;
+  }) => {
+    console.log("Applying filters:", filters);
+    // Update URL search params
+    const newParams = new URLSearchParams();
+    if (filters.status) newParams.set("status", filters.status);
+    if (filters.matchSort) newParams.set("matchSort", filters.matchSort);
+
+    setSearchParams(newParams);
   };
 
   if (loading) {
@@ -363,8 +345,14 @@ const ApplicationView: React.FC = () => {
                 >
                   Match %
                 </th>
-                <th scope="col" className="relative px-6 py-3">
-                  <span className="sr-only">Actions</span>
+                <th scope="col" className="relative px-6 py-3 text-right">
+                  <ApplicationViewFilter
+                    onApplyFilter={handleApplyFilter}
+                    initialFilters={{
+                      status: statusFilter,
+                      matchSort: matchSortFilter,
+                    }}
+                  />
                 </th>
               </tr>
             </thead>
