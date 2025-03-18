@@ -1,10 +1,10 @@
 export const statusOptions = [
+  { value: "applied", label: "Applied" },
   { value: "pending", label: "Pending" },
   { value: "reviewed", label: "Reviewed" },
   { value: "rejected", label: "Rejected" },
   { value: "shortlisted", label: "Shortlisted" },
   { value: "hired", label: "Hired" },
-  { value: "Applied", label: "Applied" },
 ];
 
 export interface Applicant {
@@ -15,15 +15,8 @@ export interface Applicant {
   appliedAt: string;
   resumeUrl: string;
   coverLetter: string;
-  status:
-    | "pending"
-    | "reviewed"
-    | "interviewed"
-    | "rejected"
-    | "shortlisted"
-    | "hired"
-    | "applied";
-  matchPercentage: number; // Added matchPercentage field
+  status: string;
+  matchPercentage: number;
 }
 
 export interface Job {
@@ -33,13 +26,13 @@ export interface Job {
   location?: string;
   salary?: string;
   jobType: string;
-  remote: boolean;
+  remote?: boolean;
   description: string;
   techStack: string;
   responsibilites: string; // Note: This matches the backend field name (with typo)
   requirements: string;
-  about: string;
-  benefits: string;
+  about?: string;
+  benefits?: string;
   applicationsCount?: number;
   createdAt: string;
   expiresAt?: string;
