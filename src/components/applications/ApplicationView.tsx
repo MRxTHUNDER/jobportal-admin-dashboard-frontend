@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Applicant, Job, statusOptions } from "@/types/application";
+import ViewResume from "./ViewResume";
 
 const ApplicationView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +37,10 @@ const ApplicationView: React.FC = () => {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [applicantsLoading, setApplicantsLoading] = useState(false);
   const [isUpdating, setIsUpdating] = useState<Record<string, boolean>>({});
+  const [selectedApplicant, setSelectedApplicant] = useState<{
+    userId: string;
+    applicationId: string;
+  } | null>(null);
 
   const statusFilter = searchParams.get("status") || "";
   const matchSortFilter = searchParams.get("matchSort") || "";
@@ -405,14 +410,18 @@ const ApplicationView: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center justify-end">
-                        <a
-                          href={applicant.resumeUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-899 mr-4"
+                        <button
+                          onClick={() =>
+                            setSelectedApplicant({
+                              userId:
+                                applicant.resumeUrl.split("/").pop() || "",
+                              applicationId: applicant._id,
+                            })
+                          }
+                          className="text-blue-600 hover:text-blue-899 mr-4 cursor-pointer"
                         >
                           View Resume
-                        </a>
+                        </button>
                         <Select
                           disabled={isUpdating[applicant._id]}
                           defaultValue={applicant.status}
@@ -455,6 +464,16 @@ const ApplicationView: React.FC = () => {
           </table>
         )}
       </div>
+
+      {/* Add the ViewResume dialog */}
+      {selectedApplicant && (
+        <ViewResume
+          userId={selectedApplicant.userId}
+          applicationId={selectedApplicant.applicationId}
+          isOpen={!!selectedApplicant}
+          onClose={() => setSelectedApplicant(null)}
+        />
+      )}
     </div>
   );
 };

@@ -5,7 +5,8 @@ export const statusOptions = [
   { value: "rejected", label: "Rejected" },
   { value: "shortlisted", label: "Shortlisted" },
   { value: "hired", label: "Hired" },
-];
+  { value: "applied", label: "Applied" },
+  ];
 
 export interface Applicant {
   _id: string;
