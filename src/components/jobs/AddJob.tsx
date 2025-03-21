@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { BACKEND_URL } from '../../lib/config';
-import { Building2, MapPin, DollarSign, Clock, Briefcase, Server, Check, X } from 'lucide-react';
+import { Building2, MapPin, DollarSign, Clock, Briefcase, Server, Check, X, Link as LinkIcon, Tag } from 'lucide-react';
 
 interface JobFormData {
   title: string;
@@ -15,6 +15,8 @@ interface JobFormData {
   location: string;
   salary: string;
   jobType: string;
+  jobCategory: 'outer' | 'inner';
+  jobLink?: string;
   postedBy?: string;
   expiresAt: string;
   remote: boolean;
@@ -33,6 +35,8 @@ const AddJob: React.FC = () => {
     location: '',
     salary: '',
     jobType: 'Full-time',
+    jobCategory: 'inner',
+    jobLink: '',
     expiresAt: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
     remote: false,
   });
@@ -92,6 +96,8 @@ const AddJob: React.FC = () => {
         location: formData.location,
         salary: formData.salary,
         jobType: formData.jobType, // Keeping as selected in dropdown
+        jobCategory: formData.jobCategory,
+        jobLink: formData.jobCategory === 'outer' ? formData.jobLink : undefined,
         postedBy: formData.postedBy,
         expiresAt: formData.expiresAt, // Keeping date input as-is
         remote: formData.remote
@@ -117,6 +123,8 @@ const AddJob: React.FC = () => {
       console.log('Job added successfully:', data);
       
       setSuccessMessage('Job added successfully!');
+      alert('Job added successfully!');
+      
       setFormData({
         title: '',
         description: '',
@@ -129,6 +137,8 @@ const AddJob: React.FC = () => {
         location: '',
         salary: '',
         jobType: 'Full-time',
+        jobCategory: 'inner',
+        jobLink: '',
         postedBy: '',
         expiresAt: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
         remote: false,
@@ -232,6 +242,60 @@ const AddJob: React.FC = () => {
                 />
               </div>
             </div>
+
+            {/* Job Category */}
+            <div className="sm:col-span-3">
+              <label htmlFor="jobCategory" className="block text-sm font-medium text-gray-700 mb-2">
+                Job Category*
+              </label>
+              <div className="relative rounded-md shadow-xs">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Tag className="h-5 w-5 text-gray-400" />
+                </div>
+                <select
+                  id="jobCategory"
+                  name="jobCategory"
+                  required
+                  value={formData.jobCategory}
+                  onChange={handleChange}
+                  className="pl-10 block w-full rounded-lg border border-gray-300 bg-white py-3 shadow-sm 
+                    hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 
+                    transition-all duration-200 text-gray-900"
+                >
+                  <option value="inner">Internal Listing</option>
+                  <option value="outer">External Listing</option>
+                </select>
+              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                {formData.jobCategory === 'inner' ? 'Job will be managed directly through our platform' : 'Links to an external job listing'}
+              </p>
+            </div>
+
+            {/* Job Link - Conditionally render based on jobCategory */}
+            {formData.jobCategory === 'outer' && (
+              <div className="sm:col-span-3">
+                <label htmlFor="jobLink" className="block text-sm font-medium text-gray-700 mb-2">
+                  External Job Link*
+                </label>
+                <div className="relative rounded-md shadow-xs">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <LinkIcon className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="url"
+                    name="jobLink"
+                    id="jobLink"
+                    required
+                    value={formData.jobLink}
+                    onChange={handleChange}
+                    className="pl-10 block w-full rounded-lg border border-gray-300 bg-white py-3 shadow-sm 
+                      hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 
+                      transition-all duration-200 text-gray-900 placeholder:text-gray-400 placeholder:text-sm"
+                    placeholder="https://company.com/careers/job-123"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             <div className="sm:col-span-6">
@@ -506,6 +570,8 @@ const AddJob: React.FC = () => {
                     location: '',
                     salary: '',
                     jobType: 'Full-time',
+                    jobCategory: 'inner',
+                    jobLink: '',
                     expiresAt: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'),
                     remote: false,
                   });
